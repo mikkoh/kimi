@@ -22,6 +22,7 @@ function kimi() {
   this.cPathIdx = 0;
   this.cAnimator = null;
   this.cGoWith = null;
+  this.cOnState = null;
   this.cOnComplete = null;
   this.engine = rafLoop( tick.bind( this ) );
 }
@@ -41,9 +42,10 @@ kimi.prototype = {
     setAnimator.call( this, from, to, animator );
   },
 
-  go: function( to, goWith, onComplete ) {
+  go: function( to, goWith, onState, onComplete ) {
 
     this.cGoWith = goWith || noop;
+    this.cOnState = onState || noop;
     this.cOnComplete = onComplete || noop;
 
     this.cPath = this.directions.getPath( this.cState, to ).path;
@@ -66,6 +68,8 @@ function setFromTo( from, to ) {
   this.tState = to;
   this.cDuration = this.directions.fromTo( from, to ) * 1000;
   this.cAnimator = this.animator[ from ][ to ];
+
+  this.cOnState( from );
 }
 
 function tick( delta ) {
@@ -95,8 +99,7 @@ function tick( delta ) {
 
       value = this.cAnimator( percentage, this.states[ this.cState ], this.states[ this.tState ] );
 
-      console.log( value )
-
+      this.cOnState( this.tState );
       this.cGoWith( value, this.cTime );
       this.cOnComplete( value, this.cTime );
     }
