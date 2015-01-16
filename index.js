@@ -51,6 +51,8 @@ kimi.prototype = {
     this.cPath = this.directions.getPath( this.cState, to ).path;
     this.cPathIdx = 0;
 
+    console.log( 'GOOOOO ->', this.cState, to, this.cPath );
+
     if( this.cState != this.cPath[ 0 ] || this.tState != this.cPath[ 1 ] ) {
 
       setFromTo.call( this, this.cPath[ 0 ], this.cPath[ 1 ] );
@@ -63,6 +65,8 @@ kimi.prototype = {
 };
 
 function setFromTo( from, to ) {
+
+  console.log( from, to );
 
   this.cState = from;
   this.tState = to;
@@ -99,6 +103,7 @@ function tick( delta ) {
 
       value = this.cAnimator( percentage, this.states[ this.cState ], this.states[ this.tState ] );
 
+      this.cState = this.tState;
       this.cOnState( this.tState );
       this.cGoWith( value, this.cTime );
       this.cOnComplete( value, this.cTime );

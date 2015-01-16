@@ -5,15 +5,13 @@ var onUpdate = getUpdate();
 
 driver.state( 'alpha', [ 0, 100, 0 ] );
 driver.state( 'idle', [ 300, 200, 0.5 ] );
-driver.state( 'rollOver', [ 300, 200, 1 ] );
+driver.state( 'rollOver', [ 100, 200, 1 ] );
 driver.state( 'omega', [ 0, 300, 0 ] );
 
-driver.fromTo( 'alpha', 'idle', 1, animator );
-driver.fromTo( 'idle', 'rollOver', 1, animator );
-driver.fromTo( 'rollOver', 'idle', 1, animator );
-driver.fromTo( 'idle', 'omega', 1, animator );
-
-
+driver.fromTo( 'alpha', 'idle', 0.5, animator );
+driver.fromTo( 'idle', 'rollOver', 0.5, animator );
+driver.fromTo( 'rollOver', 'idle', 0.5, animator );
+driver.fromTo( 'idle', 'omega', 0.5, animator );
 
 driver.go( 'rollOver', onUpdate, onState, function( value, time ) {
 
@@ -66,7 +64,7 @@ function getUpdate() {
       div.style.top = value[ 1 ] + 'px';
       div.style.opacity = value[ 2 ];
 
-      console.log( value[ 2 ] );
+      // console.log( value[ 2 ] );
     };
   } catch( e ) {
 
