@@ -1,16 +1,3 @@
-# kimi
-
-[![experimental](http://badges.github.io/stability-badges/dist/experimental.svg)](http://github.com/badges/stability-badges)
-
-Define states with values and kimi will drive between the states
-
-## Usage
-
-[![NPM](https://nodei.co/npm/kimi.png)](https://www.npmjs.com/package/kimi)
-
-### Example
-
-```javascript
 var kimi = require( './..' );
 var driver = kimi( {
 
@@ -82,8 +69,3 @@ function interpolate( percentage, start, end ) {
 
   return rVal;
 }
-```
-
-## License
-
-MIT, see [LICENSE.md](http://github.com/mikkoh/kimi/blob/master/LICENSE.md) for details.

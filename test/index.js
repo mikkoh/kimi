@@ -1,7 +1,10 @@
 var kimi = require( './..' );
 
-var driver = kimi();
-var onUpdate = getUpdate();
+var driver = kimi( {
+
+  onUpdate: getUpdate(),
+  onState: onState
+});
 
 driver.state( 'alpha', [ 0, 100, 0 ] );
 driver.state( 'idle', [ 300, 200, 0.5 ] );
@@ -13,11 +16,13 @@ driver.fromTo( 'idle', 'rollOver', 0.5, animator );
 driver.fromTo( 'rollOver', 'idle', 0.5, animator );
 driver.fromTo( 'idle', 'omega', 0.5, animator );
 
-driver.go( 'rollOver', onUpdate, onState, function( value, time ) {
+driver.init( 'alpha' );
+
+driver.go( 'rollOver', function( value, time ) {
 
   console.log( '---- finished alpha -> rollOver', value );
 
-  driver.go( 'omega', onUpdate, onState, function( value ) {
+  driver.go( 'omega', function( value ) {
 
     console.log( '---- finished rollOver -> omega', value );
   });

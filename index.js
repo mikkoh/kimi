@@ -4,12 +4,16 @@ var directions = require( 'directions' ),
 
 module.exports = kimi;
 
-function kimi() {
+function kimi( settings ) {
 
   if( !( this instanceof kimi) ) {
 
-    return new kimi();
+    return new kimi( settings );
   }
+
+  settings = settings || {};
+  this.onUpdate = settings.onUpdate || noop;
+  this.onState = settings.onState || noop;
 
   this.directions = directions();
   this.animator = {};
@@ -21,8 +25,6 @@ function kimi() {
   this.cPath = null;
   this.cPathIdx = 0;
   this.cAnimator = null;
-  this.cGoWith = null;
-  this.cOnState = null;
   this.cOnComplete = null;
   this.engine = rafLoop( tick.bind( this ) );
 }
@@ -31,7 +33,6 @@ kimi.prototype = {
 
   state: function( name, value ) {
 
-    this.cState = this.cState || name;
     this.states[ name ] = value;
   },
 
@@ -42,34 +43,41 @@ kimi.prototype = {
     setAnimator.call( this, from, to, animator );
   },
 
-  go: function( to, goWith, onState, onComplete ) {
+  init: function( initState ) {
 
-    this.cGoWith = goWith || noop;
-    this.cOnState = onState || noop;
-    this.cOnComplete = onComplete || noop;
+    setCurrentState.call( this, initState );
+  },
 
-    this.cPath = this.directions.getPath( this.cState, to ).path;
-    this.cPathIdx = 0;
+  go: function( to, onComplete ) {
 
-    if( this.cState != this.cPath[ 0 ] || this.tState != this.cPath[ 1 ] ) {
+    if( this.cState ) {
 
-      setFromTo.call( this, this.cPath[ 0 ], this.cPath[ 1 ] );
+      this.cOnComplete = onComplete || noop;
 
-      this.cTime = 0;
-      
-      this.engine.start();
+      this.cPath = this.directions.getPath( this.cState, to ).path;
+      this.cPathIdx = 0;
+
+      if( this.cState != this.cPath[ 0 ] || this.tState != this.cPath[ 1 ] ) {
+
+        setFromTo.call( this, this.cPath[ 0 ], this.cPath[ 1 ] );
+
+        this.cTime = 0;
+        
+        this.engine.start();
+      }
+    } else {
+
+      throw new Error( 'call init with your initial state before calling go' );
     }
   }
 };
 
 function setFromTo( from, to ) {
 
-  this.cState = from;
+  setCurrentState.call( this, from );
   this.tState = to;
   this.cDuration = this.directions.fromTo( from, to ) * 1000;
   this.cAnimator = this.animator[ from ][ to ];
-
-  this.cOnState( from );
 }
 
 function tick( delta ) {
@@ -90,7 +98,7 @@ function tick( delta ) {
       percentage = ( percentage - 1 );
       this.cTime = percentage * this.cDuration;
 
-      this.cGoWith( this.cAnimator( percentage, this.states[ this.cState ], this.states[ this.tState ] ), this.cTime );
+      this.onUpdate( this.cAnimator( percentage, this.states[ this.cState ], this.states[ this.tState ] ), this.cTime );
     } else {
 
       percentage = 1;
@@ -99,14 +107,22 @@ function tick( delta ) {
 
       value = this.cAnimator( percentage, this.states[ this.cState ], this.states[ this.tState ] );
 
-      this.cState = this.tState;
-      this.cOnState( this.tState );
-      this.cGoWith( value, this.cTime );
+      setCurrentState.call( this, this.tState );
+      this.onUpdate( value, this.cTime );
       this.cOnComplete( value, this.cTime );
     }
   } else {
 
-    this.cGoWith( this.cAnimator( percentage, this.states[ this.cState ], this.states[ this.tState ] ), this.cTime );
+    this.onUpdate( this.cAnimator( percentage, this.states[ this.cState ], this.states[ this.tState ] ), this.cTime );
+  }
+}
+
+function setCurrentState( state ) {
+
+  if( this.cState != state ) {
+    
+    this.cState = state;
+    this.onState( state, this.states[ state ] );
   }
 }
 
