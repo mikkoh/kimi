@@ -52,21 +52,23 @@ kimi.prototype = {
 
     if( this.cState ) {
 
-      if( this.cState != to ) {
-        
-        this.cOnComplete = onComplete || noop;
+      this.cOnComplete = onComplete || noop;
 
+      if( !this.tState ) {
         this.cPath = this.directions.getPath( this.cState, to ).path;
-        this.cPathIdx = 0;
+      } else {
+        this.cPath = this.directions.getPath( this.cState, this.tState, to ).path;
+      }
 
-        if( this.cState != this.cPath[ 0 ] || this.tState != this.cPath[ 1 ] ) {
+      this.cPathIdx = 0;
 
-          setFromTo.call( this, this.cPath[ 0 ], this.cPath[ 1 ] );
+      if( this.cState != this.cPath[ 0 ] || this.tState != this.cPath[ 1 ] ) {
 
-          this.cTime = 0;
-          
-          this.engine.start();
-        }
+        setFromTo.call( this, this.cPath[ 0 ], this.cPath[ 1 ] );
+
+        this.cTime = 0;
+        
+        this.engine.start();
       }
     } else {
 
@@ -112,6 +114,8 @@ function tick( delta ) {
 
       setCurrentState.call( this, this.tState );
       this.cOnComplete( value, this.cTime );
+
+      this.tState = null;
     }
   } else {
 
