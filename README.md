@@ -54,7 +54,7 @@ driver.go( 'rollOver', function( value, time ) {
 
 // value comes from the interpolate function and time is the current time (in seconds)
 // here you might do such things as update the look
-function onUpdate( value, time ) {
+function onUpdate( value, state ) {
 
   console.log( 'time', time );
   console.log( 'x', value[ 0 ] );
@@ -63,9 +63,9 @@ function onUpdate( value, time ) {
 }
 
 // onState will be called when we arrive at a different place
-function onState() {
+function onState( value, state ) {
 
-  console.log( arguments );
+  console.log( state, value );
 }
 
 // animator function should return the value at the specific percentage

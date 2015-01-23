@@ -18,7 +18,7 @@ driver.fromTo( 'idle', 'omega', 0.5, animator );
 
 driver.init( 'alpha' );
 
-driver.go( 'rollOver', function( value, time ) {
+driver.go( 'rollOver', function( value, state ) {
 
   console.log( '---- finished alpha -> rollOver', value );
 
@@ -60,7 +60,7 @@ function getUpdate() {
 
     document.body.appendChild( div );
 
-    onUpdate = function( value, time ) {
+    onUpdate = function( value, state ) {
 
       div.style.background = '#CAFE00';
       div.style.width = div.style.height = 100 + 'px';
@@ -73,9 +73,9 @@ function getUpdate() {
     };
   } catch( e ) {
 
-    onUpdate = function( value, time ) {
+    onUpdate = function( value, state ) {
 
-      console.log( 'time: ', time );
+      console.log( 'state: ', state );
       console.log( 'value: ', value );
     };
   };

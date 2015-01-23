@@ -50,7 +50,7 @@ kimi.prototype = {
 
   go: function( to, onComplete ) {
 
-    if( this.cState ) {
+    if( this.cState && this.cState != to ) {
 
       this.cOnComplete = onComplete || noop;
 
@@ -98,7 +98,7 @@ function tick( delta ) {
       percentage = ( percentage - 1 );
       this.cTime = percentage * this.cDuration;
 
-      this.onUpdate( this.cAnimator( percentage, this.states[ this.cState ], this.states[ this.tState ] ), this.cTime );
+      this.onUpdate( this.cAnimator( percentage, this.states[ this.cState ], this.states[ this.tState ] ), this.cState );
     } else {
 
       percentage = 1;
@@ -108,12 +108,11 @@ function tick( delta ) {
       value = this.cAnimator( percentage, this.states[ this.cState ], this.states[ this.tState ] );
 
       setCurrentState.call( this, this.tState );
-      this.onUpdate( value, this.cTime );
       this.cOnComplete( value, this.cTime );
     }
   } else {
 
-    this.onUpdate( this.cAnimator( percentage, this.states[ this.cState ], this.states[ this.tState ] ), this.cTime );
+    this.onUpdate( this.cAnimator( percentage, this.states[ this.cState ], this.states[ this.tState ] ), this.cState );
   }
 }
 
@@ -122,7 +121,8 @@ function setCurrentState( state ) {
   if( this.cState != state ) {
     
     this.cState = state;
-    this.onState( state, this.states[ state ] );
+    this.onUpdate( this.states[ state ], state );
+    this.onState( this.states[ state ], state );
   }
 }
 
