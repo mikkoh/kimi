@@ -50,20 +50,23 @@ kimi.prototype = {
 
   go: function( to, onComplete ) {
 
-    if( this.cState && this.cState != to ) {
+    if( this.cState ) {
 
-      this.cOnComplete = onComplete || noop;
-
-      this.cPath = this.directions.getPath( this.cState, to ).path;
-      this.cPathIdx = 0;
-
-      if( this.cState != this.cPath[ 0 ] || this.tState != this.cPath[ 1 ] ) {
-
-        setFromTo.call( this, this.cPath[ 0 ], this.cPath[ 1 ] );
-
-        this.cTime = 0;
+      if( this.cState != to ) {
         
-        this.engine.start();
+        this.cOnComplete = onComplete || noop;
+
+        this.cPath = this.directions.getPath( this.cState, to ).path;
+        this.cPathIdx = 0;
+
+        if( this.cState != this.cPath[ 0 ] || this.tState != this.cPath[ 1 ] ) {
+
+          setFromTo.call( this, this.cPath[ 0 ], this.cPath[ 1 ] );
+
+          this.cTime = 0;
+          
+          this.engine.start();
+        }
       }
     } else {
 
