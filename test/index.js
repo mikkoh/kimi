@@ -28,9 +28,9 @@ driver.go( 'rollOver', function( value, state ) {
   });
 });
 
-function onState( state ) {
+function onState( value, state ) {
 
-  console.log( 'in state', state );
+  console.log( 'in state', state, value );
 }
 
 

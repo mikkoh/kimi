@@ -14,16 +14,18 @@ function kimi( settings ) {
   settings = settings || {};
   this.onUpdate = settings.onUpdate || noop;
   this.onState = settings.onState || noop;
+  this.allowReverse = settings.allowReverse || true;
 
   this.directions = directions();
   this.animator = {};
   this.states = {};
+  this.isReversing = false;
+  
   this.cTime = 0;
   this.cDuration = 0;
   this.cState = null;
   this.tState = null;
-  this.cPath = null;
-  this.cPathIdx = 0;
+  this.cPath = [];
   this.cAnimator = null;
   this.cOnComplete = null;
   this.engine = rafLoop( tick.bind( this ) );
@@ -54,22 +56,34 @@ kimi.prototype = {
 
       this.cOnComplete = onComplete || noop;
 
-      if( !this.tState ) {
-        this.cPath = this.directions.getPath( this.cState, to ).path;
+      // if we're trying to go to our current state
+      if( to == this.cState ) {
+
+        // if we allow for reversing then we should reverse
+        if( this.allowReverse ) {
+
+          this.isReversing = true;
+          this.cPath = [ this.cState, this.tState ];
+          this.tState = null;
+
+        // otherwise we'll get a path from our tState
+        } else {
+
+          this.isReversing = false;
+          this.cPath = this.directions.getPath( this.cState, this.tState, to ).path;
+          this.tState = null;
+        }
+      // if we're not going to our current state then just get the path
       } else {
-        this.cPath = this.directions.getPath( this.cState, this.tState, to ).path;
+
+        this.isReversing = false;
+        this.cPath = this.directions.getPath( this.cState, to ).path;
+        this.tState = null;
       }
 
-      this.cPathIdx = 0;
+      setFromTo.call( this );
 
-      if( this.cState != this.cPath[ 0 ] || this.tState != this.cPath[ 1 ] ) {
-
-        setFromTo.call( this, this.cPath[ 0 ], this.cPath[ 1 ] );
-
-        this.cTime = 0;
-        
-        this.engine.start();
-      }
+      this.engine.start();
     } else {
 
       throw new Error( 'call init with your initial state before calling go' );
@@ -77,49 +91,99 @@ kimi.prototype = {
   }
 };
 
-function setFromTo( from, to ) {
+function setFromTo() {
 
-  setCurrentState.call( this, from );
-  this.tState = to;
-  this.cDuration = this.directions.fromTo( from, to ) * 1000;
-  this.cAnimator = this.animator[ from ][ to ];
+  var from, to; 
+
+  if( this.tState ) {
+
+    from = this.tState;
+    to = this.cPath.shift();
+  } else {
+
+    from = this.cPath.shift();
+    to = this.cPath.shift();
+  }
+
+  // if we have a to state
+  if( to ) {
+
+    setCurrentState.call( this, from );
+    this.tState = to;
+    this.cDuration = this.directions.fromTo( from, to ) * 1000;
+    this.cAnimator = this.animator[ from ][ to ];
+  } else {
+
+    this.cTime = 0;
+
+    if( !this.isReversing ) {
+
+      setCurrentState.call( this, this.tState );
+    } else {
+
+      setCurrentState.call( this, this.cState );
+    }
+
+    this.tState = null;
+    this.cDuration = 0;
+  }
 }
 
 function tick( delta ) {
 
-  this.cTime += delta;
+  var value;
 
-  var percentage = this.cTime / this.cDuration,
-      value;
+  if( !this.isReversing ) {
 
-  if( percentage >= 1 ) {
-
-    this.cPathIdx++;
-
-    if( this.cPathIdx < this.cPath.length - 1 ) {
-
-      setFromTo.call( this, this.cPath[ this.cPathIdx ], this.cPath[ this.cPathIdx + 1 ] );
-
-      percentage = ( percentage - 1 );
-      this.cTime = percentage * this.cDuration;
-
-      this.onUpdate( this.cAnimator( percentage, this.states[ this.cState ], this.states[ this.tState ] ), this.cState );
-    } else {
-
-      percentage = 1;
-      this.cTime = this.cDuration;
-      this.engine.stop();
-
-      value = this.cAnimator( percentage, this.states[ this.cState ], this.states[ this.tState ] );
-
-      setCurrentState.call( this, this.tState );
-      this.cOnComplete( value, this.cTime );
-
-      this.tState = null;
-    }
+    this.cTime += delta;
   } else {
 
-    this.onUpdate( this.cAnimator( percentage, this.states[ this.cState ], this.states[ this.tState ] ), this.cState );
+    this.cTime -= delta;
+  }
+
+  // if we're not reversing then just call the animator or go to the next state
+  if( !this.isReversing ) {
+
+    if( this.cTime >= this.cDuration ) {
+
+      this.cTime = this.cTime - this.cDuration;
+
+      setFromTo.call( this );
+
+      if( !this.tState ) {
+
+        this.engine.stop();
+        this.cTime = 0;
+      }
+    }
+  // if we're reversing
+  } else {
+
+    if( this.cTime <= 0 ) {
+
+      setFromTo.call( this );
+      
+      if( !this.tState ) {
+
+        this.engine.stop();
+        this.cTime = 0;
+      }
+    }
+  }
+
+  if( this.tState ) {
+
+    this.onUpdate( 
+                    this.cAnimator( this.cTime / this.cDuration, this.states[ this.cState ], this.states[ this.tState ] ), 
+                    this.cState, 
+                    this.cTime 
+                  );
+  } else {
+
+    value = this.cAnimator( 0, this.states[ this.cState ], this.states[ this.cState ] );
+
+    this.onUpdate( value, this.cState, this.cTime );
+    this.cOnComplete( value, this.cState );
   }
 }
 
