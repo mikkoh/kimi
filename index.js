@@ -19,15 +19,12 @@ function kimi( settings ) {
   this.directions = directions();
   this.animator = {};
   this.states = {};
-  this.isReversing = false;
   
-  this.cTime = 0;
-  this.cDuration = 0;
-  this.cState = null;
-  this.tState = null;
-  this.cPath = [];
-  this.cAnimator = null;
-  this.cOnComplete = null;
+  this.currentTime = 0;
+  this.currentState = null;
+  this.targetState = null;
+  this.currentPath = [];
+  this.onComplete = null;
   this.engine = rafLoop( tick.bind( this ) );
 }
 
@@ -47,41 +44,39 @@ kimi.prototype = {
 
   init: function( initState ) {
 
-    setCurrentState.call( this, initState );
+    this.currentState = initState;
+
+    sendUpdate.call( this );
   },
 
   go: function( to, onComplete ) {
 
-    if( this.cState ) {
+    if( this.currentState ) {
 
-      this.cOnComplete = onComplete || noop;
+      this.onComplete = onComplete || noop;
 
       // if we're trying to go to our current state
-      if( to == this.cState ) {
+      if( to == this.currentState ) {
 
-        // if we allow for reversing then we should reverse
-        if( this.allowReverse ) {
+        if( !this.allowReverse ) {
 
-          this.isReversing = true;
-          this.cPath = [ this.cState, this.tState ];
-          this.tState = null;
-
-        // otherwise we'll get a path from our tState
+          this.currentPath = this.directions.getPath( this.currentState, this.targetState, to ).path;
+          this.currentPath.shift();
         } else {
 
-          this.isReversing = false;
-          this.cPath = this.directions.getPath( this.cState, this.tState, to ).path;
-          this.tState = null;
+          this.currentPath = [ to ];
         }
       // if we're not going to our current state then just get the path
       } else {
 
-        this.isReversing = false;
-        this.cPath = this.directions.getPath( this.cState, to ).path;
-        this.tState = null;
+        this.currentPath = this.directions.getPath( this.currentState, to ).path;
+        this.currentPath.shift();
       }
 
-      setFromTo.call( this );
+      if( !this.targetState ) {
+
+        this.targetState = this.currentPath[ 0 ];
+      }
 
       this.engine.start();
     } else {
@@ -91,111 +86,86 @@ kimi.prototype = {
   }
 };
 
-function setFromTo() {
-
-  var from, to; 
-
-  if( this.tState ) {
-
-    from = this.tState;
-    to = this.cPath.shift();
-  } else {
-
-    from = this.cPath.shift();
-    to = this.cPath.shift();
-  }
-
-  // if we have a to state
-  if( to ) {
-
-    setCurrentState.call( this, from );
-    this.tState = to;
-    this.cDuration = this.directions.fromTo( from, to ) * 1000;
-    this.cAnimator = this.animator[ from ][ to ];
-  } else {
-
-    this.cTime = 0;
-
-    if( !this.isReversing ) {
-
-      setCurrentState.call( this, this.tState );
-    } else {
-
-      setCurrentState.call( this, this.cState );
-    }
-
-    this.tState = null;
-    this.cDuration = 0;
-  }
-}
-
 function tick( delta ) {
 
-  var value;
+  var to = this.currentPath[ 0 ],
+      isReversing = this.allowReverse && ( this.currentState == to || ( this.targetState && to && to != this.targetState ) ),
+      duration = this.directions.fromTo( this.currentState, this.targetState ) * 1000,
+      animator = this.animator[ this.currentState ][ this.targetState ];
 
-  if( !this.isReversing ) {
+  // we should reverse when we're trying to go from to the same place
+  // or when the state we're going to isn't the same as the path to
+  if( isReversing ) {
 
-    this.cTime += delta;
-  } else {
+    this.currentTime = Math.max( this.currentTime - delta, 0 );
 
-    this.cTime -= delta;
-  }
+    sendUpdate.call( this, duration, animator );
 
-  // if we're not reversing then just call the animator or go to the next state
-  if( !this.isReversing ) {
+    if( this.currentTime == 0 ) {
 
-    if( this.cTime >= this.cDuration ) {
+      // we were reversing to the same state
+      if( this.currentState == to ) {
 
-      this.cTime = this.cTime - this.cDuration;
-
-      setFromTo.call( this );
-
-      if( !this.tState ) {
-
-        this.engine.stop();
-        this.cTime = 0;
+        // we've reached our target state which is the current state
+        this.targetState = this.currentPath.shift();
+      // we were reversing cause we need to go to a new state
+      } else if( to != this.targetState ) {
+          
+        // now allow it to go to the target state
+        this.targetState = to;
       }
     }
-  // if we're reversing
   } else {
 
-    if( this.cTime <= 0 ) {
+    this.currentTime = Math.min( this.currentTime + delta, duration );
 
-      setFromTo.call( this );
-      
-      if( !this.tState ) {
+    sendUpdate.call( this, duration, animator );
 
-        this.engine.stop();
-        this.cTime = 0;
-      }
+    if( this.currentTime == duration ) {
+
+      this.currentTime = 0;
+      this.currentState = this.targetState;
+      this.targetState = this.currentPath.shift();
     }
   }
 
-  if( this.tState ) {
+  // we don't have anywhere to go anymore
+  if( this.currentState == this.targetState && this.currentPath.length == 0 ) {
+
+    this.engine.stop();
+    
+    this.onComplete( 
+      this.states[ this.currentState ],
+      this.currentState
+    );
+  }
+}
+
+function sendUpdate( duration, animator ) {
+
+  if( animator ) {
 
     this.onUpdate( 
-                    this.cAnimator( this.cTime / this.cDuration, this.states[ this.cState ], this.states[ this.tState ] ), 
-                    this.cState, 
-                    this.cTime 
-                  );
+      animator( this.currentTime / duration, this.states[ this.currentState ], this.states[ this.targetState ] ), 
+      this.currentState, 
+      this.currentTime 
+    );
   } else {
 
-    value = this.cAnimator( 0, this.states[ this.cState ], this.states[ this.cState ] );
+    this.onUpdate( 
+      this.states[ this.currentState ], 
+      this.currentState, 
+      this.currentTime 
+    );
 
-    this.onUpdate( value, this.cState, this.cTime );
-    this.cOnComplete( value, this.cState );
+    this.onState( 
+      this.states[ this.currentState ], 
+      this.currentState, 
+      this.currentTime
+    );
   }
 }
 
-function setCurrentState( state ) {
-
-  if( this.cState != state ) {
-    
-    this.cState = state;
-    this.onUpdate( this.states[ state ], state );
-    this.onState( this.states[ state ], state );
-  }
-}
 
 function setAnimator( from, to, animator ) {
 
