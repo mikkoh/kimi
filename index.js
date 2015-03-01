@@ -99,9 +99,11 @@ function tick( delta ) {
 
     this.currentTime = Math.max( this.currentTime - delta, 0 );
 
-    sendUpdate.call( this, duration, animator );
-
     if( this.currentTime == 0 ) {
+
+      // this will send an update with the current state object
+      // by reference
+      sendUpdate.call( this, duration );
 
       // we were reversing to the same state
       if( this.currentState == to ) {
@@ -114,18 +116,27 @@ function tick( delta ) {
         // now allow it to go to the target state
         this.targetState = to;
       }
+    } else {
+
+      // send an update that is calculated
+      sendUpdate.call( this, duration, animator );
     }
   } else {
 
     this.currentTime = Math.min( this.currentTime + delta, duration );
 
-    sendUpdate.call( this, duration, animator );
+    
 
     if( this.currentTime == duration ) {
 
       this.currentTime = 0;
       this.currentState = this.targetState;
       this.targetState = this.currentPath.shift();
+
+      sendUpdate.call( this, duration );
+    } else {
+
+      sendUpdate.call( this, duration, animator );
     }
   }
 
