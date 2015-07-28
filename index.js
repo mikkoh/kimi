@@ -74,8 +74,6 @@ kimi.prototype = {
           to: this.targetState,
           location: this.currentTime 
         }, to).path;
-        
-        this.currentPath.shift();
       }
 
       if(!this.targetState) {
