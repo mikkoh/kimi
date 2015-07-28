@@ -1,14 +1,14 @@
-var directions = require( 'directions' ),
-    rafLoop = require( 'raf-loop' ),
-    noop = require( 'no-op' );
+var directions = require('directions');
+var rafLoop = require('raf-loop');
+var noop = require('no-op');
 
 module.exports = kimi;
 
-function kimi( settings ) {
+function kimi(settings) {
 
-  if( !( this instanceof kimi) ) {
+  if(!( this instanceof kimi)) {
 
-    return new kimi( settings );
+    return new kimi(settings);
   }
 
   settings = settings || {};
@@ -25,42 +25,42 @@ function kimi( settings ) {
   this.targetState = null;
   this.currentPath = [];
   this.onComplete = null;
-  this.engine = rafLoop( tick.bind( this ) );
+  this.engine = rafLoop(tick.bind(this));
 }
 
 kimi.prototype = {
 
-  state: function( name, value ) {
+  state: function(name, value) {
 
     this.states[ name ] = value;
   },
 
-  fromTo: function( from, to, duration, animator ) {
+  fromTo: function(from, to, duration, animator) {
 
-    this.directions.fromTo( from, to, duration );
+    this.directions.fromTo(from, to, duration);
 
-    setAnimator.call( this, from, to, animator );
+    setAnimator.call(this, from, to, animator);
   },
 
-  init: function( initState ) {
+  init: function(initState) {
 
     this.currentState = initState;
 
-    sendUpdate.call( this );
+    sendUpdate.call(this);
   },
 
-  go: function( to, onComplete ) {
+  go: function(to, onComplete) {
 
-    if( this.currentState ) {
+    if(this.currentState) {
 
       this.onComplete = onComplete || noop;
 
       // if we're trying to go to our current state
-      if( to == this.currentState ) {
+      if(to === this.currentState) {
 
-        if( !this.allowReverse ) {
+        if(!this.allowReverse) {
 
-          this.currentPath = this.directions.getPath( this.currentState, this.targetState, to ).path;
+          this.currentPath = this.directions.getPath(this.currentState, this.targetState, to).path;
           this.currentPath.shift();
         } else {
 
@@ -69,11 +69,16 @@ kimi.prototype = {
       // if we're not going to our current state then just get the path
       } else {
 
-        this.currentPath = this.directions.getPath( this.currentState, to ).path;
+        this.currentPath = this.directions.getPath( {
+          from: this.currentState,
+          to: this.targetState,
+          location: this.currentTime 
+        }, to).path;
+        
         this.currentPath.shift();
       }
 
-      if( !this.targetState ) {
+      if(!this.targetState) {
 
         this.targetState = this.currentPath[ 0 ];
       }
@@ -81,37 +86,37 @@ kimi.prototype = {
       this.engine.start();
     } else {
 
-      throw new Error( 'call init with your initial state before calling go' );
+      throw new Error('call init with your initial state before calling go');
     }
   }
 };
 
-function tick( delta ) {
+function tick(delta) {
 
   var to = this.currentPath[ 0 ],
-      isReversing = this.allowReverse && ( this.currentState == to || ( this.targetState && to && to != this.targetState ) ),
-      duration = this.directions.fromTo( this.currentState, this.targetState ) * 1000,
+      isReversing = this.allowReverse && (this.currentState == to || ( this.targetState && to && to != this.targetState )),
+      duration = this.directions.fromTo(this.currentState, this.targetState) * 1000,
       animator = this.animator[ this.currentState ][ this.targetState ];
 
   // we should reverse when we're trying to go from to the same place
   // or when the state we're going to isn't the same as the path to
-  if( isReversing ) {
+  if(isReversing) {
 
-    this.currentTime = Math.max( this.currentTime - delta, 0 );
+    this.currentTime = Math.max(this.currentTime - delta, 0);
 
-    if( this.currentTime == 0 ) {
+    if(this.currentTime == 0) {
 
       // this will send an update with the current state object
       // by reference
-      sendUpdate.call( this, duration );
+      sendUpdate.call(this, duration);
 
       // we were reversing to the same state
-      if( this.currentState == to ) {
+      if(this.currentState == to) {
 
         // we've reached our target state which is the current state
         this.targetState = this.currentPath.shift();
       // we were reversing cause we need to go to a new state
-      } else if( to != this.targetState ) {
+      } else if(to != this.targetState) {
           
         // now allow it to go to the target state
         this.targetState = to;
@@ -119,29 +124,29 @@ function tick( delta ) {
     } else {
 
       // send an update that is calculated
-      sendUpdate.call( this, duration, animator );
+      sendUpdate.call(this, duration, animator);
     }
   } else {
 
-    this.currentTime = Math.min( this.currentTime + delta, duration );
+    this.currentTime = Math.min(this.currentTime + delta, duration);
 
     
 
-    if( this.currentTime == duration ) {
+    if(this.currentTime == duration) {
 
       this.currentTime = 0;
       this.currentState = this.targetState;
       this.targetState = this.currentPath.shift();
 
-      sendUpdate.call( this, duration );
+      sendUpdate.call(this, duration);
     } else {
 
-      sendUpdate.call( this, duration, animator );
+      sendUpdate.call(this, duration, animator);
     }
   }
 
   // we don't have anywhere to go anymore
-  if( this.currentState == this.targetState && this.currentPath.length == 0 ) {
+  if(this.currentState == this.targetState && this.currentPath.length == 0) {
 
     this.engine.stop();
     
@@ -152,12 +157,12 @@ function tick( delta ) {
   }
 }
 
-function sendUpdate( duration, animator ) {
+function sendUpdate(duration, animator) {
 
-  if( animator ) {
+  if(animator) {
 
     this.onUpdate( 
-      animator( this.currentTime / duration, this.states[ this.currentState ], this.states[ this.targetState ] ), 
+      animator(this.currentTime / duration, this.states[ this.currentState ], this.states[ this.targetState ]), 
       this.currentState, 
       this.currentTime 
     );
@@ -178,9 +183,9 @@ function sendUpdate( duration, animator ) {
 }
 
 
-function setAnimator( from, to, animator ) {
+function setAnimator(from, to, animator) {
 
-  var animators = this.animator[ from ] || ( this.animator[ from ] = {} );
+  var animators = this.animator[ from ] || (this.animator[ from ] = {});
 
   animators[ to ] = animator;
 }
