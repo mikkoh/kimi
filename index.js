@@ -1,4 +1,4 @@
-var directions = require('directions');
+var pathfinder = require('./pathfinder');
 var rafLoop = require('raf-loop');
 var noop = require('no-op');
 
@@ -16,7 +16,7 @@ function kimi(settings) {
   this.onState = settings.onState || noop;
   this.allowReverse = settings.allowReverse || true;
 
-  this.directions = directions();
+  this.directions = pathfinder();
   this.animator = {};
   this.states = {};
   
@@ -69,11 +69,17 @@ kimi.prototype = {
       // if we're not going to our current state then just get the path
       } else {
 
-        this.currentPath = this.directions.getPath( {
-          from: this.currentState,
-          to: this.targetState,
-          location: this.currentTime 
-        }, to).path;
+        if(this.targetState && this.currentState !== this.targetState) {
+
+          this.currentPath = this.directions.getPath( {
+            from: this.currentState,
+            to: this.targetState,
+            location: this.currentTime / 1000 
+          }, to);
+        } else {
+
+          this.currentPath = this.directions.getPath( this.currentState, to);
+        }
       }
 
       if(!this.targetState) {
@@ -102,7 +108,7 @@ function tick(delta) {
 
     this.currentTime = Math.max(this.currentTime - delta, 0);
 
-    if(this.currentTime == 0) {
+    if(this.currentTime === 0) {
 
       // this will send an update with the current state object
       // by reference
@@ -144,7 +150,7 @@ function tick(delta) {
   }
 
   // we don't have anywhere to go anymore
-  if(this.currentState == this.targetState && this.currentPath.length == 0) {
+  if(this.currentState == this.targetState && this.currentPath.length === 0) {
 
     this.engine.stop();
     
