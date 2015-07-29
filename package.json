@@ -10,7 +10,7 @@
     "url": "https://github.com/mikkoh"
   },
   "dependencies": {
-    "directions": "^2.1.0",
+    "directions": "^2.1.1",
     "no-op": "^1.0.3",
     "raf-loop": "^1.0.1"
   },
