@@ -63,6 +63,10 @@ module.exports = function() {
           costs[ from ] = {};
         }
 
+        if(!costs[ to ]) {
+          costs[ to ] = {};
+        }
+
         costs[ from ][ to ] = duration;
       }
     }
