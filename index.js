@@ -42,9 +42,20 @@ kimi.prototype = {
     setAnimator.call(this, from, to, animator);
   },
 
-  init: function(initState) {
+  init: function(state) {
 
-    this.currentState = initState;
+    this.currentState = state;
+
+    sendUpdate.call(this);
+  },
+
+  set: function(state) {
+
+    this.currentState = state;
+    this.currentTime = 0;
+    this.targetState = null;
+    this.currentPath = [];
+    this.engine.stop();
 
     sendUpdate.call(this);
   },
@@ -97,10 +108,10 @@ kimi.prototype = {
 
 function tick(delta) {
 
-  var to = this.currentPath[ 0 ],
-      isReversing = this.allowReverse && (this.currentState == to || ( this.targetState && to && to != this.targetState )),
-      duration = this.directions.fromTo(this.currentState, this.targetState) * 1000,
-      animator = this.animator[ this.currentState ][ this.targetState ];
+  var to = this.currentPath[ 0 ];
+  var isReversing = this.allowReverse && (this.currentState == to || ( this.targetState && to && to != this.targetState ));
+  var duration = this.directions.fromTo(this.currentState, this.targetState) * 1000;
+  var animator = this.animator[ this.currentState ][ this.targetState ];
 
   // we should reverse when we're trying to go from to the same place
   // or when the state we're going to isn't the same as the path to

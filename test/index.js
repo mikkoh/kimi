@@ -28,11 +28,18 @@ driver.go( 'rollOver', function( value, state ) {
   });
 });
 
+document.addEventListener('mousedown', function() {
+  driver.set('idle');
+});
+
+document.addEventListener('mouseup', function() {
+  driver.go('omega');
+});
+
 function onState( value, state ) {
 
   console.log( 'in state', state, value );
 }
-
 
 function animator( percentage, start, end ) {
 

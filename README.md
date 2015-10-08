@@ -52,6 +52,14 @@ driver.go( 'rollOver', function( value, time ) {
   console.log( '---- finished alpha -> rollOver', value );
 });
 
+// the following will show how `set` works
+window.addEventListener('mousedown', function() {
+  
+  // this will cause kimi to just jump to this state and kill all animations
+  driver.set('idle');
+});
+
+
 // value comes from the interpolate function and time is the current time (in seconds)
 // here you might do such things as update the look
 function onUpdate( value, state ) {
