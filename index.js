@@ -51,6 +51,8 @@ kimi.prototype = {
 
   set: function(state) {
 
+    var setToTarget = this.targetState === state;
+
     this.currentState = state;
     this.currentTime = 0;
     this.targetState = null;
@@ -58,6 +60,15 @@ kimi.prototype = {
     this.engine.stop();
 
     sendUpdate.call(this);
+
+    if(setToTarget && this.onComplete) {
+      this.onComplete( 
+        this.states[ states ],
+        state
+      );
+    }
+
+    this.onComplete = null;
   },
 
   go: function(to, onComplete) {
