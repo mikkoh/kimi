@@ -3,7 +3,7 @@ var budo = require('budo');
 var runTest = require('./runTest');
 
 // if we're running in sauce labs
-if(true || process.env.SAUCE_USERNAME) {
+if(process.env.SAUCE_USERNAME) {
 
   var hasExited = false;
   var client;
@@ -23,7 +23,7 @@ if(true || process.env.SAUCE_USERNAME) {
                       build: process.env.TRAVIS_BUILD_NUMBER
                     } 
                   };
-                  
+
     client = webdriverio.remote(options);
      
     client
