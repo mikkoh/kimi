@@ -8,5 +8,6 @@ script:
   - zuul test/
 env:
   global:
-  - secure: JatUrrYC1TdD5yegvOjLGKUIisbxDUMwzyKYWHO+cYpeFGNRk40FGdKZI3Ci4UDBcVcULAyHJgMAq0FjK8bghdg8L41qH/xBmHfcpfiTZufoOj7KtMO7UdjUAVq4YIRfS1Qrc9Om7DXOxiJeIIkfoUj7FvaCLGpvyWgbdfFnBFY=
-  - secure: Bx6iEUyNipZB0QtaBqBpDkIJ8dY4AMYjVFvTQJm4xfpHt5maV8AYjg4glwq7O2GELx7MUjIBg1KsG3uyWbFBd4ZVn3aThv859szIYQB5iZddrbvlW3bZbH3h8RrvRUL6Wj57fRGTGSaOiebMvdSLGaDwXf+xceH4dz67MB1liAM=
+    - secure: DX8eDVJJRqs7EVjzuwtk91Nz29G4bWDkdaRo75yRvMG4OxPp9qqdswl8E6c0ZvGyb0lHRMdhOpPrJcf6N4qsrmxZzxycb6FiGvs4G4ufc/rQhLXZ50K6MLfKXNo794J2uyrcjwioYF+DMnf5L5n4vQXbq4K11hkVM0az/zgv8BQ=
+    - secure: kP3RDmElND3ndKe0+HIjDclsfbnP4STCVmlcQwzs4/paHLB44uPkfRjs8RGUm+79PxtFfUolrSOCGjq956k+uCOENc58xDN+IpJy+PtqKSbTiTPAROY3TUcRbQdjCqsGtIB844xr4j3syTn2J4ztaMAp98gokhp3YOhBtIo+mA==
+
