@@ -2,13 +2,19 @@ ui: tape
 browsers:
   - name: chrome
     version: 42..latest
+    platform: Mac 10.10
   - name: firefox
     version: 39..latest
+    platform: Mac 10.10
   - name: ie
     version: 8..latest
+    platform: Windows 10
   - name: iphone
     version: 8.0..latest
+    platform: Mac 10.10
   - name: safari
     version: 8..latest
+    platform: Mac 10.10
   - name: android
     version: 4.4..latest
+    platform: Linux
