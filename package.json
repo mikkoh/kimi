@@ -15,13 +15,12 @@
     "raf-loop": "^1.0.1"
   },
   "devDependencies": {
-    "budo": "^5.1.3",
     "tape": "^4.2.1",
     "test-fuzzy-array": "^1.0.1",
-    "webdriverio": "^3.2.5"
+    "zuul": "^3.6.0"
   },
   "scripts": {
-    "test": "node test/"
+    "test": "zuul test/"
   },
   "keywords": [
     "animation,states,path,finding"
