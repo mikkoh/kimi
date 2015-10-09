@@ -1,9 +1,15 @@
 language: node_js
 node_js:
-  - "stable"
-  - "iojs"
-  - "4.1"
-  - "4.0"
-  - "0.12"
-  - "0.11"
-  - "0.10"
+- stable
+- iojs
+- '4.1'
+- '4.0'
+- '0.12'
+- '0.11'
+- '0.10'
+addons:
+  sauce_connect: true
+env:
+  global:
+  - secure: blbh9tAacM+SWOSSU6sA+MUVfSHNgJx2gOleO+UmiJPb/ff4jwt8IRG8jcfho3z8ZsnpVfDG9yX8loz0VH4uP0laEevf0G8+bs3LGhfaSmUrCRx2IHHIN9MDdUMQohf7T9UWFkrNy70rVgpVr3SCUWX7HSi2GsJjacZ0bTc7GfI=
+  - secure: p6/5U2gUcNO850j5TTouMyFziEBtbq3vGC2/S/YmYqgi6MMWrLzlP7JmkkboVTGzP3SR2+2Di8r7AgWHuUCp1sWEANh2uRixrA+ORUdukWP0LeYbA54LZ8FARWJH14+hhcKyw+imTlz4TnN0YJvt05I+18vEimQTPGvOZ4pk/8o=
