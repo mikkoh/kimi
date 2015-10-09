@@ -25,7 +25,10 @@ function kimi(settings) {
   this.targetState = null;
   this.currentPath = [];
   this.onComplete = null;
-  this.engine = rafLoop(tick.bind(this));
+
+  if(!settings.manualStep) {
+    this.engine = rafLoop(this.step.bind(this));  
+  }
 }
 
 kimi.prototype = {
@@ -36,6 +39,10 @@ kimi.prototype = {
   },
 
   fromTo: function(from, to, duration, animator) {
+
+    if(arguments.length < 4) {
+      throw new Error('incorrect amount of arguments sent when defining fromTo');
+    }
 
     this.directions.fromTo(from, to, duration);
 
@@ -57,8 +64,11 @@ kimi.prototype = {
     this.currentTime = 0;
     this.targetState = null;
     this.currentPath = [];
-    this.engine.stop();
 
+    if(this.engine) {
+      this.engine.stop();
+    }
+    
     sendUpdate.call(this);
 
     if(setToTarget && this.onComplete) {
@@ -104,84 +114,96 @@ kimi.prototype = {
         }
       }
 
-      if(!this.targetState) {
-
+      if(this.currentPath === null) {
+        throw new Error('It is not possible to go from ' + this.currentState + ' to ' + to);
+      } else if(!this.targetState) {
+        // check if we're at the current state then we can
+        // simply remove ourselves
+        if(this.currentTime === 0) {
+          this.currentPath.shift();
+        }
+        
         this.targetState = this.currentPath[ 0 ];
       }
 
-      this.engine.start();
+      if(this.engine) {
+        this.engine.start();  
+      }
     } else {
 
       throw new Error('call init with your initial state before calling go');
     }
+  },
+
+  step: function(delta) {
+
+    if(this.currentPath.length || this.targetState) {
+
+      var to = this.currentPath[ 0 ];
+      var isReversing = this.allowReverse && (this.currentState === to || ( this.targetState && to && to !== this.targetState ));
+      var duration = this.directions.fromTo(this.currentState, this.targetState) * 1000;
+      var animator = this.animator[ this.currentState ][ this.targetState ];
+
+      // we should reverse when we're trying to go from to the same place
+      // or when the state we're going to isn't the same as the path to
+      if(isReversing) {
+
+        this.currentTime = Math.max(this.currentTime - delta, 0);
+
+        if(this.currentTime === 0) {
+
+          // this will send an update with the current state object
+          // by reference
+          sendUpdate.call(this, duration);
+
+          // we were reversing to the same state
+          if(this.currentState === to) {
+
+            // we've reached our target state which is the current state
+            this.targetState = this.currentPath.shift();
+          // we were reversing cause we need to go to a new state
+          } else if(to != this.targetState) {
+              
+            // now allow it to go to the target state
+            this.targetState = to;
+          }
+        } else {
+
+          // send an update that is calculated
+          sendUpdate.call(this, duration, animator);
+        }
+      } else {
+
+        this.currentTime = Math.min(this.currentTime + delta, duration);
+
+        if(this.currentTime === duration) {
+
+          this.currentTime = 0;
+          this.currentState = this.currentPath.shift();
+          this.targetState = this.currentPath[ 0 ];
+
+          sendUpdate.call(this, duration);
+        } else {
+
+          sendUpdate.call(this, duration, animator);
+        }
+      }
+
+      // we don't have anywhere to go anymore
+      if(this.currentState === this.targetState && this.currentPath.length === 0) {
+
+        if(this.engine) {
+          this.engine.stop();
+        }
+        
+        this.onComplete( 
+          this.states[ this.currentState ],
+          this.currentState
+        );
+      }
+    }
   }
 };
-
-function tick(delta) {
-
-  var to = this.currentPath[ 0 ];
-  var isReversing = this.allowReverse && (this.currentState == to || ( this.targetState && to && to != this.targetState ));
-  var duration = this.directions.fromTo(this.currentState, this.targetState) * 1000;
-  var animator = this.animator[ this.currentState ][ this.targetState ];
-
-  // we should reverse when we're trying to go from to the same place
-  // or when the state we're going to isn't the same as the path to
-  if(isReversing) {
-
-    this.currentTime = Math.max(this.currentTime - delta, 0);
-
-    if(this.currentTime === 0) {
-
-      // this will send an update with the current state object
-      // by reference
-      sendUpdate.call(this, duration);
-
-      // we were reversing to the same state
-      if(this.currentState == to) {
-
-        // we've reached our target state which is the current state
-        this.targetState = this.currentPath.shift();
-      // we were reversing cause we need to go to a new state
-      } else if(to != this.targetState) {
-          
-        // now allow it to go to the target state
-        this.targetState = to;
-      }
-    } else {
-
-      // send an update that is calculated
-      sendUpdate.call(this, duration, animator);
-    }
-  } else {
-
-    this.currentTime = Math.min(this.currentTime + delta, duration);
-
-    
-
-    if(this.currentTime == duration) {
-
-      this.currentTime = 0;
-      this.currentState = this.targetState;
-      this.targetState = this.currentPath.shift();
-
-      sendUpdate.call(this, duration);
-    } else {
-
-      sendUpdate.call(this, duration, animator);
-    }
-  }
-
-  // we don't have anywhere to go anymore
-  if(this.currentState == this.targetState && this.currentPath.length === 0) {
-
-    this.engine.stop();
-    
-    this.onComplete( 
-      this.states[ this.currentState ],
-      this.currentState
-    );
-  }
-}
 
 function sendUpdate(duration, animator) {
 
