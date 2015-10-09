@@ -13,7 +13,17 @@ if(true || process.env.SAUCE_USERNAME) {
     port: 8000,
   })
   .on('connect', function(info) {
-    var options = { desiredCapabilities: { browserName: 'chrome' } };
+    var options = { 
+                    desiredCapabilities: { 
+                      browserName: 'chrome',
+                      version: '27.0',
+                      platform: 'XP',
+                      'tunnel-identifier': process.env.TRAVIS_JOB_NUMBER,
+                      name: 'integration',
+                      build: process.env.TRAVIS_BUILD_NUMBER
+                    } 
+                  };
+                  
     client = webdriverio.remote(options);
      
     client
