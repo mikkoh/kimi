@@ -58,7 +58,13 @@ kimi.prototype = {
 
   set: function(state) {
 
-    var setToTarget = this.targetState === state;
+    var setToTarget;
+
+    if(this.currentPath.length > 0) {
+      setToTarget = this.currentPath[ this.currentPath.length - 1 ] === state;
+    } else {
+      setToTarget = this.targetState === state;
+    }
 
     this.currentState = state;
     this.currentTime = 0;
@@ -73,7 +79,7 @@ kimi.prototype = {
 
     if(setToTarget && this.onComplete) {
       this.onComplete( 
-        this.states[ states ],
+        this.states[ state ],
         state
       );
     }
