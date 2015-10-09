@@ -3,6 +3,9 @@ node_js:
 - stable
 addons:
   sauce_connect: true
+script:
+  - node test/
+  - zuul test/
 env:
   global:
   - secure: JatUrrYC1TdD5yegvOjLGKUIisbxDUMwzyKYWHO+cYpeFGNRk40FGdKZI3Ci4UDBcVcULAyHJgMAq0FjK8bghdg8L41qH/xBmHfcpfiTZufoOj7KtMO7UdjUAVq4YIRfS1Qrc9Om7DXOxiJeIIkfoUj7FvaCLGpvyWgbdfFnBFY=
