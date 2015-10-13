@@ -196,7 +196,7 @@ kimi.prototype = {
       }
 
       // we don't have anywhere to go anymore
-      if(!this.targetState) {
+      if(this.currentPath.length === 0) {
 
         if(this.engine) {
           this.engine.stop();
