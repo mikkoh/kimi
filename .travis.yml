@@ -3,9 +3,6 @@ node_js:
 - stable
 addons:
   sauce_connect: true
-script:
-  - node test/
-  - zuul test/
 env:
   global:
     
