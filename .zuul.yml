@@ -1,0 +1,10 @@
+ui: tape
+browsers:
+  - name: chrome
+    version: -2..latest
+    platform: Mac 10.10
+  - name: firefox
+    version: -2..latest
+    platform: Mac 10.10
+  - name: ie
+    version: -2..latest
