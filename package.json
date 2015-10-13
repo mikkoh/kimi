@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "no-op": "^1.0.3",
-    "node-dijkstra": "^2.2.0",
+    "node-dijkstra": "^1.1.3",
     "raf-loop": "^1.0.1"
   },
   "devDependencies": {
@@ -20,7 +20,7 @@
     "zuul": "^3.6.0"
   },
   "scripts": {
-    "test": "zuul test/"
+    "test": "node test/"
   },
   "keywords": [
     "animation,states,path,finding"
