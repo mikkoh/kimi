@@ -15,7 +15,7 @@
     "raf-loop": "^1.0.1"
   },
   "devDependencies": {
-    "tape": "^4.2.1",
+    "tape": "^4.2.2",
     "test-fuzzy-array": "^1.0.1",
     "zuul": "^3.6.0"
   },
