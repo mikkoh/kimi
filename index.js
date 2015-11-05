@@ -96,7 +96,7 @@ kimi.prototype = {
 
       // we want to check that this to will not be going to the to state already
       // this check will ensure that the path is not recalculated
-      if(true || this.currentPath.length === 0 || this.currentPath[ this.currentPath.length - 1 ] !== to) {
+      if(this.currentPath.length === 0 || this.currentPath[ this.currentPath.length - 1 ] !== to) {
 
         // if we're trying to go to our current state
         if(to === this.currentState) {
