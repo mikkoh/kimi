@@ -141,6 +141,20 @@ kimi.prototype = {
     }
   },
 
+  destroy: function() {
+    if(this.engine) {
+      this.engine.stop();
+    }
+
+    // kill the engine
+    this.engine = null;
+
+    // this is a bit heavy handed but it ensures
+    // that no one can do anything with the ui instance
+    // anymore
+    this.step = function() {};
+  },
+
   step: function(delta) {
 
     if(this.currentPath.length || this.targetState) {
