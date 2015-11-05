@@ -89,51 +89,57 @@ kimi.prototype = {
 
   go: function(to, onComplete) {
 
+    // this is to check if init has been called
     if(this.currentState) {
 
       this.onComplete = onComplete || noop;
 
-      // if we're trying to go to our current state
-      if(to === this.currentState) {
+      // we want to check that this to will not be going to the to state already
+      // this check will ensure that the path is not recalculated
+      if(true || this.currentPath.length === 0 || this.currentPath[ this.currentPath.length - 1 ] !== to) {
 
-        if(!this.allowReverse) {
+        // if we're trying to go to our current state
+        if(to === this.currentState) {
 
-          this.currentPath = this.directions.getPath(this.currentState, this.targetState, to).path;
-          this.currentPath.shift();
+          if(!this.allowReverse) {
+
+            this.currentPath = this.directions.getPath(this.currentState, this.targetState, to).path;
+            this.currentPath.shift();
+          } else {
+
+            this.currentPath = [ to ];
+          }
+        // if we're not going to our current state then just get the path
         } else {
 
-          this.currentPath = [ to ];
+          if(this.targetState && this.currentState !== this.targetState) {
+
+            this.currentPath = this.directions.getPath( {
+              from: this.currentState,
+              to: this.targetState,
+              location: this.currentTime / 1000 
+            }, to);
+          } else {
+
+            this.currentPath = this.directions.getPath( this.currentState, to);
+          }
         }
-      // if we're not going to our current state then just get the path
-      } else {
 
-        if(this.targetState && this.currentState !== this.targetState) {
-
-          this.currentPath = this.directions.getPath( {
-            from: this.currentState,
-            to: this.targetState,
-            location: this.currentTime / 1000 
-          }, to);
-        } else {
-
-          this.currentPath = this.directions.getPath( this.currentState, to);
+        if(this.currentPath === null) {
+          throw new Error('It is not possible to go from ' + this.currentState + ' to ' + to);
+        } else if(!this.targetState) {
+          // check if we're at the current state then we can
+          // simply remove ourselves
+          if(this.currentTime === 0) {
+            this.currentPath.shift();
+          }
+          
+          this.targetState = this.currentPath[ 0 ];
         }
-      }
 
-      if(this.currentPath === null) {
-        throw new Error('It is not possible to go from ' + this.currentState + ' to ' + to);
-      } else if(!this.targetState) {
-        // check if we're at the current state then we can
-        // simply remove ourselves
-        if(this.currentTime === 0) {
-          this.currentPath.shift();
+        if(this.engine) {
+          this.engine.start();  
         }
-        
-        this.targetState = this.currentPath[ 0 ];
-      }
-
-      if(this.engine) {
-        this.engine.start();  
       }
     } else {
 
