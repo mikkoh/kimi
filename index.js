@@ -163,7 +163,7 @@ kimi.prototype = {
 
   step: function(delta) {
 
-    if(this.currentPath.length || this.targetState) {
+    if((this.currentPath.length || this.targetState) && this.directions.fromTo(this.currentState, this.targetState) !== undefined) {
 
       var to = this.currentPath[ 0 ];
       var isReversing = this.allowReverse && (this.currentState === to || ( this.targetState && to && to !== this.targetState ));
