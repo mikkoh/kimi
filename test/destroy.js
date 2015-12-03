@@ -1,10 +1,10 @@
 var kimi = require('./..');
 var getFuzzyTest = require('test-fuzzy-array');
 
-var EXPECTED_EVENTS = [ 'update', 'state', 'update', 'update', 'update' ]
-var EXPECTED_STATES = [ 'out', 'out', 'out', 'out', 'out' ]
-var EXPECTED_VALUES = [ 10, 10, 10.1, 10.2, 10.3 ]
-var EXPECTED_TIMES = [ 0, 0, 100, 200, 300 ];
+var EXPECTED_EVENTS = [ 'state', 'update', 'update', 'update' ]
+var EXPECTED_STATES = [ 'out', 'out', 'out', 'out' ]
+var EXPECTED_VALUES = [ 10, 10.1, 10.2, 10.3 ]
+var EXPECTED_TIMES = [ 0, 0.1, 0.2, 0.3 ];
 
 
 module.exports = function(t) {

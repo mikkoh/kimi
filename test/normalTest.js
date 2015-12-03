@@ -1,10 +1,11 @@
 var kimi = require( './..' );
 var getFuzzyTest = require('test-fuzzy-array');
 
-var EXPECTED_EVENTS = ['update', 'state', 'update', 'update', 'update', 'update', 'state', 'update', 'update', 'update', 'update', 'update', 'state'];
-var EXPECTED_STATES = ['out',    'out',   'out',    'out',    'out',    'idle',   'idle',  'idle',   'idle',   'idle',   'idle',   'rolled', 'rolled'];
-var EXPECTED_TIMES =  [0,        0,       100,      200,      300,      0,        0,       100,      200,      300,      400,      0,        0      ];
-var EXPECTED_VALUES = [10,       10,      13.903,   17.807,   21.711,   23,       23,      29.8,     36.6,     43.4,     50.2,     57,       57     ];
+var EXPECTED_EVENTS =   ['state', 'update', 'update', 'update', 'state', 'update', 'update', 'update', 'update', 'state'];
+var EXPECTED_STATES =   ['out',   'out',    'out',    'out',    'idle',  'idle',   'idle',   'idle',   'idle',   'rolled'];
+var EXPECTED_TIMES =    [0,       0.1,      0.2,      0.3,      0,       0.1,      0.2,      0.3,      0.4,      0      ];
+var EXPECTED_DURATION = [         0.333,    0.333,    0.333,             0.5,      0.5,      0.5,      0.5              ];
+var EXPECTED_VALUES =   [10,      13.903,   17.807,   21.711,   23,      29.8,     36.6,     43.4,     50.2,     57     ];
 
 module.exports = function(t) {
 
@@ -12,6 +13,7 @@ module.exports = function(t) {
   var states = [];
   var values = [];
   var times = [];
+  var durations = [];
   var driver = kimi( {
     manualStep: true,
     onUpdate: onUpdate,
@@ -36,6 +38,7 @@ module.exports = function(t) {
   t.deepEqual(events, EXPECTED_EVENTS, 'events were correct');
   t.deepEqual(states, EXPECTED_STATES, 'states were correct');
   t.deepEqual(times, EXPECTED_TIMES, 'times were correct');
+  t.deepEqual(durations, EXPECTED_DURATION, 'durations were correct');
   getFuzzyTest(t, 0.01)(values, EXPECTED_VALUES, 'values were correctish');
 
   // count how many times 'state' is in the array should only be 3 times
@@ -48,18 +51,14 @@ module.exports = function(t) {
     return events[ i ] === 'state';
   }), [ 10, 23, 57 ], 'on state events received the correct values');
 
-  // test that onStates receive correct values
-  t.deepEqual(values.filter( function(value, i) {
-    return events[ i ] === 'update' && events[ i + 1 ] === 'state';
-  }), [ 10, 23, 57 ], 'on update before state received correct values');
-
   t.end();
 
-  function onUpdate(value, state, time) {
+  function onUpdate(value, state, time, duration) {
     events.push('update');
     states.push(state);
     values.push(value);
     times.push(time);
+    durations.push(duration);
   }
 
   function onState(value, state, time) {

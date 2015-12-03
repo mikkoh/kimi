@@ -238,23 +238,15 @@ function sendUpdate(duration, animator) {
     this.onUpdate( 
       animator(this.currentTime / duration, this.states[ this.currentState ], this.states[ this.targetState ]), 
       this.currentState, 
-      this.currentTime,
-      duration
+      this.currentTime / 1000,
+      duration / 1000
     );
   } else {
-
-    this.onUpdate( 
-      this.states[ this.currentState ], 
-      this.currentState, 
-      this.currentTime,
-      duration
-    );
 
     this.onState( 
       this.states[ this.currentState ], 
       this.currentState, 
-      this.currentTime,
-      duration
+      this.currentTime / 1000
     );
   }
 }

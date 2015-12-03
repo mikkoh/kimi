@@ -1,8 +1,8 @@
 var kimi = require('./..');
 
-var EXPECTED_EVENTS = [ 'update', 'state', 'update', 'update', 'update', 'state', 'update', 'update' ];
-var EXPECTED_STATES = [ 'a',      'a',     'a',      'a',      'c',      'c',     'c',      'c'      ];
-var EXPECTED_VALUES = [ 10,       10,      10.1,     10.2,     12,       12,      11.9,     11.8     ];
+var EXPECTED_EVENTS = [ 'state', 'update', 'update', 'state', 'update', 'update' ];
+var EXPECTED_STATES = [ 'a',     'a',      'a',      'c',     'c',      'c'      ];
+var EXPECTED_VALUES = [ 10,      10.1,     10.2,     12,      11.9,     11.8     ];
 
 module.exports = function(t) {
 
