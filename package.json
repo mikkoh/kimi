@@ -1,6 +1,6 @@
 {
   "name": "kimi",
-  "version": "4.4.0",
+  "version": "5.0.0",
   "description": "Define states with values and kimi will drive between the states",
   "main": "index.js",
   "license": "MIT",
