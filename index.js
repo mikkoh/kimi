@@ -243,6 +243,13 @@ function sendUpdate(duration, animator) {
     );
   } else {
 
+    this.onUpdate( 
+      this.states[ this.currentState ], 
+      this.currentState, 
+      this.currentTime / 1000,
+      duration !== undefined ? duration / 1000 : 0
+    );
+
     this.onState( 
       this.states[ this.currentState ], 
       this.currentState, 
