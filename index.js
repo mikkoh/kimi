@@ -14,7 +14,7 @@ function kimi(settings) {
   settings = settings || {};
   this.onUpdate = settings.onUpdate || noop;
   this.onState = settings.onState || noop;
-  this.allowReverse = settings.allowReverse || true;
+  this.allowReverse = 'allowReverse' in settings ? settings.allowReverse : true;
 
   this.directions = pathfinder();
   this.animator = {};
