@@ -24,7 +24,7 @@ function kimi(settings) {
   this.currentState = null;
   this.targetState = null;
   this.currentPath = [];
-  this.onComplete = null;
+  this.onComplete = noop;
 
   if(!settings.manualStep) {
     this.engine = rafLoop(this.step.bind(this));  
@@ -84,7 +84,7 @@ kimi.prototype = {
       );
     }
 
-    this.onComplete = null;
+    this.onComplete = noop;
   },
 
   go: function(to, onComplete) {
@@ -131,9 +131,20 @@ kimi.prototype = {
           // check if we're at the current state then we can
           // simply remove ourselves
           if(this.currentTime === 0) {
+
+            // if we're at the current target this will
+            // the current and only item in the array
+            // in this case we can just cal complete
+            if(this.currentPath.length === 1) {
+              this.onComplete( 
+                this.states[ this.currentPath[ 0 ] ],
+                this.currentPath[ 0 ]
+              );
+            }
+
             this.currentPath.shift();
           }
-          
+
           this.targetState = this.currentPath[ 0 ];
         }
 
