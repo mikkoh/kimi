@@ -24,7 +24,7 @@ function kimi(settings) {
   this.currentState = null;
   this.targetState = null;
   this.currentPath = [];
-  this.onComplete = noop;
+  this.onCompleteCB = noop;
 
   if(!settings.manualStep) {
     this.engine = rafLoop(this.step.bind(this));  
@@ -84,7 +84,7 @@ kimi.prototype = {
       );
     }
 
-    this.onComplete = noop;
+    this.onCompleteCB = noop;
   },
 
   go: function(to, onComplete) {
@@ -92,7 +92,7 @@ kimi.prototype = {
     // this is to check if init has been called
     if(this.currentState) {
 
-      this.onComplete = onComplete || noop;
+      this.onCompleteCB = onComplete || noop;
 
       // we want to check that this to will not be going to the to state already
       // this check will ensure that the path is not recalculated
@@ -125,6 +125,10 @@ kimi.prototype = {
           }
         }
 
+        if(this.engine) {
+          this.engine.start();  
+        }
+
         if(this.currentPath === null) {
           throw new Error('It is not possible to go from ' + this.currentState + ' to ' + to);
         } else if(!this.targetState) {
@@ -147,15 +151,19 @@ kimi.prototype = {
 
           this.targetState = this.currentPath[ 0 ];
         }
-
-        if(this.engine) {
-          this.engine.start();  
-        }
       }
     } else {
 
       throw new Error('call init with your initial state before calling go');
     }
+  },
+
+  onComplete: function() {
+    if(this.engine) {
+      this.engine.stop();
+    }
+    
+    this.onCompleteCB.apply(undefined, arguments);
   },
 
   destroy: function() {
@@ -228,11 +236,6 @@ kimi.prototype = {
 
       // we don't have anywhere to go anymore
       if(this.currentPath.length === 0) {
-
-        if(this.engine) {
-          this.engine.stop();
-        }
-        
         this.onComplete( 
           this.states[ this.currentState ],
           this.currentState
