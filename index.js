@@ -89,23 +89,9 @@ kimi.prototype = {
 
   go: function(to, onComplete) {
 
-    var length;
-    var currentPath;
-    
     // To avoid potential reference errors
-    try{
-      length = this.currentPath.length;
-    }
-    catch(err){
-      length = null;
-    }
-
-    if(!this.currentPath){
-      currentPath = [];
-    }
-    else{
-      currentPath = this.currentPath;
-    }
+    var currentPath = this.currentPath || [];
+    var length = currentPath.length;
 
     // this is to check if init has been called
     if(this.currentState) {
