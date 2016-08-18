@@ -92,8 +92,9 @@ kimi.prototype = {
     var length;
     var currentPath;
     
+    // To avoid potential reference errors
     try{
-      length = this.currentPath.length; // To avoid potential reference errors
+      length = this.currentPath.length;
     }
     catch(err){
       length = null;
@@ -261,7 +262,7 @@ kimi.prototype = {
       }
 
       // we don't have anywhere to go anymore
-      if(this.currentPath.length === 0) {
+      if(length === 0) {
         this.onComplete( 
           this.states[ this.currentState ],
           this.currentState
