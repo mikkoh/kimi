@@ -92,8 +92,9 @@ kimi.prototype = {
     var length;
     var currentPath;
     
+    // To avoid potential reference errors
     try{
-      length = this.currentPath.length; // To avoid potential reference errors
+      length = this.currentPath.length;
     }
     catch(err){
       length = null;
