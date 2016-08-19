@@ -89,10 +89,6 @@ kimi.prototype = {
 
   go: function(to, onComplete) {
 
-    // To avoid potential reference errors
-    var currentPath = this.currentPath || [];
-    var length = currentPath.length;
-
     // this is to check if init has been called
     if(this.currentState) {
 
@@ -100,7 +96,7 @@ kimi.prototype = {
 
       // we want to check that this to will not be going to the to state already
       // this check will ensure that the path is not recalculated
-      if(length === 0 || currentPath[ length - 1 ] !== to) {
+      if(!this.currentPath || this.currentPath.length === 0 || this.currentPath[ this.currentPath.length - 1 ] !== to) {
 
         // if we're trying to go to our current state
         if(to === this.currentState) {
@@ -186,16 +182,7 @@ kimi.prototype = {
 
   step: function(delta) {
 
-    var length;
-
-    try{
-      length = this.currentPath.length;
-    }
-    catch(err){
-      length = null;
-    }
-
-    if(length || this.targetState) {
+    if ((this.currentPath && this.currentPath.length) || this.targetState) {
 
       var to = this.currentPath[ 0 ];
       var isReversing = this.allowReverse && (this.currentState === to || ( this.targetState && to && to !== this.targetState ));
